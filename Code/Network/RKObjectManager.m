@@ -369,7 +369,7 @@ static NSString *RKMIMETypeFromAFHTTPClientParameterEncoding(AFRKHTTPClientParam
     self = [super init];
     if (self) {
         self.HTTPClient = client;
-        self.router = [[RKRouter alloc] initWithBaseURL:client.baseURL];        
+        self.router = [[RKRouter alloc] initWithBaseURL:client.baseURL];
         self.operationQueue = [NSOperationQueue new];
         self.mutableRequestDescriptors = [NSMutableArray new];
         self.mutableResponseDescriptors = [NSMutableArray new];
@@ -377,7 +377,7 @@ static NSString *RKMIMETypeFromAFHTTPClientParameterEncoding(AFRKHTTPClientParam
         self.registeredHTTPRequestOperationClasses = [NSMutableArray new];
         self.registeredManagedObjectRequestOperationClasses = [NSMutableArray new];
         self.registeredObjectRequestOperationClasses = [NSMutableArray new];
-        self.requestSerializationMIMEType = RKMIMETypeFromAFHTTPClientParameterEncoding(client.parameterEncoding);        
+        self.requestSerializationMIMEType = RKMIMETypeFromAFHTTPClientParameterEncoding(client.parameterEncoding);
 
         // Set shared manager if nil
         if (nil == sharedManager) {
@@ -436,17 +436,16 @@ static NSString *RKMIMETypeFromAFHTTPClientParameterEncoding(AFRKHTTPClientParam
         // NOTE: If the HTTP client has been subclasses, then the developer may be trying to perform signing on the request
         NSDictionary *parametersForClient = [self.HTTPClient isMemberOfClass:[AFRKHTTPClient class]] ? nil : parameters;
         request = [self.HTTPClient requestWithMethod:method path:path parameters:parametersForClient];
-		
         NSError *error = nil;
         NSString *charset = (__bridge NSString *)CFStringConvertEncodingToIANACharSetName(CFStringConvertNSStringEncodingToEncoding(self.HTTPClient.stringEncoding));
         [request setValue:[NSString stringWithFormat:@"%@; charset=%@", self.requestSerializationMIMEType, charset] forHTTPHeaderField:@"Content-Type"];
         NSData *requestBody = [RKMIMETypeSerialization dataFromObject:parameters MIMEType:self.requestSerializationMIMEType error:&error];
         [request setHTTPBody:requestBody];
-	} else {
+    } else {
         request = [self.HTTPClient requestWithMethod:method path:path parameters:parameters];
     }
 
-	return request;
+    return request;
 }
 
 - (NSMutableURLRequest *)requestWithPathForRouteNamed:(NSString *)routeName
@@ -562,7 +561,7 @@ static NSString *RKMIMETypeFromAFHTTPClientParameterEncoding(AFRKHTTPClientParam
     while (requestOperationClass = [enumerator nextObject]) {
         if ([requestOperationClass canProcessRequest:request]) break;
         requestOperationClass = nil;
-    }    
+    }
     return requestOperationClass;
 }
 
@@ -632,7 +631,8 @@ static NSString *RKMIMETypeFromAFHTTPClientParameterEncoding(AFRKHTTPClientParam
                                        parameters:(NSDictionary *)parameters
 {
     RKObjectRequestOperation *operation = nil;
-    NSURLRequest *request = [self requestWithObject:object method:method path:path parameters:parameters];
+    NSMutableURLRequest *request = [self requestWithObject:object method:method path:path parameters:parameters];
+    request.cachePolicy =  NSURLRequestReloadIgnoringCacheData;
     NSDictionary *routingMetadata = nil;
     if (! path) {
         RKRoute *route = [self.router.routeSet routeForObject:object method:method];
@@ -729,7 +729,7 @@ static NSString *RKMIMETypeFromAFHTTPClientParameterEncoding(AFRKHTTPClientParam
                               success:(void (^)(RKObjectRequestOperation *operation, RKMappingResult *mappingResult))success
                               failure:(void (^)(RKObjectRequestOperation *operation, NSError *error))failure
 {
-    NSParameterAssert(routeName);    
+    NSParameterAssert(routeName);
     RKRoute *route = [self.router.routeSet routeForName:routeName];
     NSDictionary *interpolatedParameters = nil;
     NSURL *URL = [self URLWithRoute:route object:object interpolatedParameters:&interpolatedParameters];
